@@ -7,19 +7,35 @@ doc
 
 #!/bin/bash
 
+# The file names
 database_file=database.csv
-short_delay=3
+
+# Global variables
+
+
+# Colour codes for 'tput' command
+red=1
+green=2
+yellow=3
+blue=4
+cyan=6
+
+# Time out periods
+menu_time_out=10						#time to log out if user does not given any response
+long_delay=5							#long delay time to show the message
+short_delay=3							#short delay time to show the message
+
 
 #================================= page_title function definition ================================
 
 function page_title()
 {
     clear
-    echo "   =========================="
-    # $(tput setaf 1) - select the text colour, $(tput setab 3) - select the background colour, $(tput bold) - select the bold mode, 
+    echo "          --------------------------"
+    # $(tput setaf 4) - select the text colour, $(tput setab 3) - select the background colour, $(tput bold) - select the bold mode, 
     # $(tput sgr 0) - resetting to default
-    echo "  |$(tput setaf 1)$(tput setab 3)$(tput bold)     Database Project     $(tput sgr 0)|"       
-    echo -e "   ==========================\n"
+    echo "         |$(tput setaf 3)$(tput setab 4)$(tput bold)     DATABASE PROJECT     $(tput sgr 0)|"       
+    echo -e "          --------------------------\n"
 }
 
 #================================ variable_clear function definition =============================
@@ -38,8 +54,9 @@ function variable_clear()
 
 function log()
 {
-	echo "function"
 	#TODO Write activities to log files along with timestamp, pass argument as a string
+	date_time=`date +'%d-%m-%Y %H:%M:%S'`
+	echo "$date_time - $1" >> database.log
 }
 
 #=============================== menu_header function definition =================================
@@ -48,11 +65,13 @@ function menu_header()
 {
     # TODO Just to print welcome menu presntation
     #calling page_title function
-    page_title												
-    echo -e "\n$(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
-    echo "1. Add Entry"
-    echo "2. Search / Edit Entry"
-    echo -e "$(tput setaf 1)x.$(tput sgr 0) Exit\n"
+    page_title	
+    echo -e "     $(tput setab 1)$(tput bold)            Home Screen             $(tput sgr 0)\n" 											
+    echo -e "\n  $(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
+    echo "  1. Add Entry"
+    echo "  2. Search / Edit Entry"
+    echo -e "  $(tput setaf 1)x.$(tput sgr 0) Exit\n"
+    echo -e "  $(tput setaf $red)$(tput bold)Note:$(tput sgr 0) Script Exit Timeout is set\n"
 }
 
 #=============================== field_menu function definition ==================================
@@ -62,17 +81,17 @@ function field_menu()
 {
     # TODO to print a selected user information 
     # Name, Email, Tel no, Mob num, Address, Message
-    echo "1. Name       : "$name""
-    echo "2. Email      : "$email""
-    echo "3. Tel No     : "$tel_no""
-    echo "4. Mob No     : "$mob_no""
-    echo "5. Place      : "$place""
-    echo "6. Message    : "$message""
+    echo "  1. Name       : "$name""
+    echo "  2. Email      : "$email""
+    echo "  3. Tel No     : "$tel_no""
+    echo "  4. Mob No     : "$mob_no""
+    echo "  5. Place      : "$place""
+    echo "  6. Message    : "$message""
     if [ $save_menu_flag -eq 1 ]
     then
-        echo "$(tput setaf 2)7. Save$(tput sgr 0)"
+        echo "  $(tput setaf 2)7. Save$(tput sgr 0)"
     fi
-    echo -e "$(tput setaf 1)x.$(tput sgr 0) Exit\n"
+    echo -e "  $(tput setaf 1)x.$(tput sgr 0) Exit\n"
 }
 
 #============================== array_search function definition ================================
@@ -93,7 +112,7 @@ function array_search()
     	    user_error_flag=0
     	    while [ $user_error_flag -eq 0 ]
     	    do
-    	         echo -e -n "\nSelect the user number to be displayed: "
+    	         echo -e -n "\n  Select the user number to be displayed: "
     	         read user_choice
     	         len_found_array=${#position_array[*]}
     	         if [ "$user_choice" -gt 0 -a "$user_choice" -le "$len_found_array" ]
@@ -101,7 +120,7 @@ function array_search()
     	             data_position="${position_array[$((user_choice-1))]}"
     	             user_error_flag=1
     	         else
-    	         echo -e "\n$(tput setaf 1)You have selected wrong option.$(tput sgr 0) Please try again"
+    	         echo -e "\n  $(tput setaf 1)You have selected wrong option.$(tput sgr 0) Please try again"
     	         user_error_flag=0
     	         fi
     	     done    	    
@@ -111,7 +130,7 @@ function array_search()
         #calling found_data_store function
         found_data_store 
     else
-    	 echo "$(tput setaf 1)Entered "$3" is not found in the database$(tput sgr 0)"
+    	 echo "  $(tput setaf 1)Entered "$3" is not found in the database$(tput sgr 0)"
     	 #calling variable_clear function
     	 variable_clear
     	 search_exit_flag=1
@@ -130,6 +149,7 @@ function found_data_store()
     mob_no=`echo "${found_array[*]}" | cut -d "," -f6`
     place=`echo "${found_array[*]}" | cut -d "," -f7`
     message=`echo "${found_array[*]}" | cut -d "," -f8`
+    log "$name has searched his database"
 }
 
 #============================== edit_operation function definition ================================
@@ -145,18 +165,18 @@ function edit_operation()
     do
         #calling page_title function
         page_title	
-        echo -e "$(tput setab 6)$(tput bold)     Search / Edit Screen       $(tput sgr 0)\n"  	
-        echo -e "\n$(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
-        echo -e "\nSearch / $(tput setaf 1)$(tput bold)Edit$(tput sgr 0) by:\n"
+        echo -e "     $(tput setab 1)$(tput bold)       Search / Edit Screen         $(tput sgr 0)\n"  	
+        echo -e "\n  $(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
+        echo -e "\n  Search / $(tput setaf 1)$(tput bold)Edit$(tput sgr 0) by:\n"
         save_menu_flag=1
         #calling field_menu function
         field_menu
         save_menu_flag=0
-        read -p "Please choose your option: " option
+        read -p "  Please choose your option: " option
         page_title	
-        echo -e "$(tput setab 6)$(tput bold)     Search / Edit Screen       $(tput sgr 0)\n"  	
-        echo -e "\n$(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
-        echo -e "\nSearch / $(tput setaf 1)$(tput bold)Edit$(tput sgr 0) by:\n"
+        echo -e "     $(tput setab 1)$(tput bold)       Search / Edit Screen         $(tput sgr 0)\n"    	
+        echo -e "\n  $(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
+        echo -e "\n  Search / $(tput setaf 1)$(tput bold)Edit$(tput sgr 0) by:\n"
         save_menu_flag=1
         #calling field_menu function
         field_menu
@@ -169,9 +189,9 @@ function edit_operation()
                do
                      if [ $name_error_flag -eq 1 ]
                      then
-                         echo -e "$(tput setaf 1)\nPlease enter a name which contains only alphabets, spaces and atlest of 3 character\n$(tput sgr 0)Try again to enter a valid name\n"
+                         echo -e "  $(tput setaf 1)\nPlease enter a name which contains only alphabets, spaces and atlest of 3 character\n  $(tput sgr 0)Try again to enter a valid name\n"
                      fi
-            	     read -p "Please enter the new Name: " name
+            	     read -p "  Please enter the new Name: " name
                     validate_entry $option
                done
                ;;
@@ -183,7 +203,7 @@ function edit_operation()
                     then
                         echo -e "$(tput setaf 1)\nPlease enter a valid E-mail ID\n$(tput sgr 0)Try again to enter a valid E-mail ID\n"
                     fi    
-                    read -p "Please enter the new Email: " email
+                    read -p "  Please enter the new Email: " email
                     validate_entry $option
                done
                ;;
@@ -193,9 +213,9 @@ function edit_operation()
                do
                     if [ $tel_error_flag -eq 1 ]
                     then
-                        echo -e "$(tput setaf 1)\nPlease enter a valid Telephone Number\n$(tput sgr 0)Try again to enter a valid Telephone Number\n"
+                        echo -e "$(tput setaf 1)\n  Please enter a valid Telephone Number\n  $(tput sgr 0)Try again to enter a valid Telephone Number\n"
                     fi    
-                    read -p "Please enter the new Telephone Number: " tel_no
+                    read -p "  Please enter the new Telephone Number: " tel_no
                     validate_entry $option
                done
                ;;
@@ -205,9 +225,9 @@ function edit_operation()
                do
                     if [ $mob_error_flag -eq 1 ]
                     then
-                        echo -e "$(tput setaf 1)\nPlease enter a valid Mobile Number\n$(tput sgr 0)Try again to enter a valid Mobile Number\n"
+                        echo -e "$(tput setaf 1)\n  Please enter a valid Mobile Number\n  $(tput sgr 0)Try again to enter a valid Mobile Number\n"
                     fi    
-                    read -p "Please enter the new Mobile Number: " mob_no
+                    read -p "  Please enter the new Mobile Number: " mob_no
                     validate_entry $option
                done            
                ;;
@@ -217,20 +237,22 @@ function edit_operation()
                do
                      if [ $place_error_flag -eq 1 ]
                      then
-                         echo -e "$(tput setaf 1)\nPlease enter a Place which contains only alphabets, spaces and atlest of 3 character\n$(tput sgr 0)Try again to enter a valid Place\n"
+                         echo -e "$(tput setaf 1)\n  Please enter a Place which contains only alphabets, spaces and atlest of 3 character\n$(tput sgr 0)  Try again to enter a valid Place\n"
                      fi
-            	     read -p "Please enter the new Place: " place
+            	     read -p "  Please enter the new Place: " place
                     validate_entry $option 
                done            
                ;;
-            6) read -p "Please enter the new Message: " message
+            6) read -p "  Please enter the new Message: " message
                ;;
             7) date_time=`date +'%d-%m-%Y,%H:%M:%S'`
                sed -i "$data_position"s/.*/"$date_time,$name,$email,$tel_no,$mob_no,$place,$message"/ "$database_file"
+               log "Updated $name data in the database.csv file"
                ;;
             x) edit_exit_flag=1
+               log "Exited edit / search menu"
                ;;
-            *) echo "$(tput setaf 1)Please coose the correct option!$(tput sgr 0)"
+            *) echo "  $(tput setaf 1)Please coose the correct option!$(tput sgr 0)"
 	       sleep $short_delay
           esac
     done	
@@ -250,40 +272,40 @@ function search_operation()
          variable_clear
 	 #calling page_title function
          page_title	
-         echo -e "$(tput setab 6)$(tput bold)     Search / Edit Screen       $(tput sgr 0)\n"  	
-         echo -e "\n$(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
-         echo -e "\n$(tput setaf 1)$(tput bold)Search$(tput sgr 0) / Edit by:\n"
+         echo -e "     $(tput setab 1)$(tput bold)       Search / Edit Screen         $(tput sgr 0)\n"  	
+         echo -e "\n  $(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
+         echo -e "\n  $(tput setaf 1)$(tput bold)Search$(tput sgr 0) / Edit by:\n"
          #calling field_menu function
          field_menu
          case $choice in
-            1) read -p "Please enter the Name: " name
+            1) read -p "  Please enter the Name: " name
                #calling array_search function
                array_search 3 "$name" name
                ;;
-            2) read -p "Please enter the Email: " email
+            2) read -p "  Please enter the Email: " email
                #calling array_search function
                array_search 4 "$email" E-mail
                ;;
-            3) read -p "Please enter the Telephone Number: " tel_no
+            3) read -p "  Please enter the Telephone Number: " tel_no
                #calling array_search function
                array_search 5 "$tel_no" "Telephone Number"
                ;;
-            4) read -p "Please enter the Mobile Number: " mob_no
+            4) read -p "  Please enter the Mobile Number: " mob_no
                mob_no="+91-$mob_no"
                #calling array_search function
                array_search 6 "$mob_no" "Mobile Number"
                ;;
-            5) read -p "Please enter the Place: " place
+            5) read -p "  Please enter the Place: " place
                #calling array_search function
                array_search 7 "$place" Place
                ;;
-            6) read -p "Please enter the Message: " message
+            6) read -p "  Please enter the Message: " message
                #calling array_search function
                array_search 8 "$message" message
                ;;
             x) edit_exit_flag=1
                ;;
-            *) echo "$(tput setaf 1)Please coose the correct option!$(tput sgr 0)"
+            *) echo "  $(tput setaf 1)Please coose the correct option!$(tput sgr 0)"
 	       sleep $short_delay
           esac
 }
@@ -300,12 +322,12 @@ function search_and_edit()
     do
          #calling page_title function
          page_title	
-         echo -e "$(tput setab 6)$(tput bold)     Search / Edit Screen       $(tput sgr 0)\n" 	
-         echo -e "\n$(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
-         echo -e "\n$(tput setaf 1)$(tput bold)Search$(tput sgr 0) / Edit by:\n"
+         echo -e "     $(tput setab 1)$(tput bold)       Search / Edit Screen         $(tput sgr 0)\n" 	
+         echo -e "\n  $(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
+         echo -e "\n  $(tput setaf 1)$(tput bold)Search$(tput sgr 0) / Edit by:\n"
          #calling field_menu function
          field_menu
-         read -p "Please choose the field to be searched: " choice
+         read -p "  Please choose the field to be searched: " choice
          #calling search_operation function
          search_operation
          if [ "$search_exit_flag" -eq 0 ]
@@ -325,9 +347,12 @@ function database_entry()
 	if [ ! -f database.csv ]
 	then
 	    touch "$database_file"
+	    working_dir=`pwd`
+	    log "Created database.csv file at $working_dir"
 	fi
 	date_time=`date +'%d-%m-%Y,%H:%M:%S'`
 	echo "$date_time,$name,$email,$tel_no,$mob_no,$place,$message" >> "$database_file"
+	log "New user ($name) data is added in database.csv file"
 }
 
 #=============================== validate_entry function definition =================================
@@ -411,15 +436,15 @@ function add_entry()
     do
          #calling page_title function
          page_title	
-         echo -e "$(tput setab 6)$(tput bold)     Add New Entry Screen       $(tput sgr 0)\n" 	
-         echo -e "\n$(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
+         echo -e "     $(tput setab 1)$(tput bold)       Add New Entry Screen         $(tput sgr 0)\n" 	
+         echo -e "\n  $(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
          #calling field_menu function
          field_menu
-         read -p "Please choose the field to be added: " choice
+         read -p "  Please choose the field to be added: " choice
          #calling page_title function
          page_title	
-         echo -e "$(tput setab 6)$(tput bold)     Add New Entry Screen       $(tput sgr 0)\n" 	
-         echo -e "\n$(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
+         echo -e "     $(tput setab 1)$(tput bold)       Add New Entry Screen         $(tput sgr 0)\n" 	
+         echo -e "\n  $(tput setaf 4)$(tput bold)Please choose the below options: $(tput sgr 0)\n"
          #calling field_menu function
          field_menu
          case $choice in
@@ -431,7 +456,7 @@ function add_entry()
                      then
                          echo -e "$(tput setaf 1)\nPlease enter a name which contains only alphabets, spaces and atlest of 3 character\n$(tput sgr 0)Try again to enter a valid name\n"
                      fi
-            	     read -p "Please enter the Name: " name
+            	     read -p "  Please enter the Name: " name
                     validate_entry 1
                done
                ;;
@@ -443,7 +468,7 @@ function add_entry()
                     then
                         echo -e "$(tput setaf 1)\nPlease enter a valid E-mail ID\n$(tput sgr 0)Try again to enter a valid E-mail ID\n"
                     fi    
-                    read -p "Please enter the Email: " email
+                    read -p "  Please enter the Email: " email
                     validate_entry 2
                done
                ;;
@@ -453,9 +478,9 @@ function add_entry()
                do
                     if [ $tel_error_flag -eq 1 ]
                     then
-                        echo -e "$(tput setaf 1)\nPlease enter a valid Telephone Number\n$(tput sgr 0)Try again to enter a valid Telephone Number\n"
+                        echo -e "$(tput setaf 1)\n  Please enter a valid Telephone Number\n  $(tput sgr 0)Try again to enter a valid Telephone Number\n"
                     fi    
-                    read -p "Please enter the Telephone Number: " tel_no
+                    read -p "  Please enter the Telephone Number: " tel_no
                     validate_entry 3
                done
                ;;
@@ -465,9 +490,9 @@ function add_entry()
                do
                     if [ $mob_error_flag -eq 1 ]
                     then
-                        echo -e "$(tput setaf 1)\nPlease enter a valid Mobile Number\n$(tput sgr 0)Try again to enter a valid Mobile Number\n"
+                        echo -e "$(tput setaf 1)\n  Please enter a valid Mobile Number\n$(tput sgr 0)  Try again to enter a valid Mobile Number\n"
                     fi    
-                    read -p "Please enter the Mobile Number: " mob_no
+                    read -p "  Please enter the Mobile Number: " mob_no
                     validate_entry 4
                done            
                ;;
@@ -477,19 +502,19 @@ function add_entry()
                do
                      if [ $place_error_flag -eq 1 ]
                      then
-                         echo -e "$(tput setaf 1)\nPlease enter a Place which contains only alphabets, spaces and atlest of 3 character\n$(tput sgr 0)Try again to enter a valid Place\n"
+                         echo -e "$(tput setaf 1)\n  Please enter a Place which contains only alphabets, spaces and atlest of 3 character\n$(tput sgr 0)  Try again to enter a valid Place\n"
                      fi
-            	     read -p "Please enter the Place: " place
+            	     read -p "  Please enter the Place: " place
                     validate_entry 5 
                done            
                ;;
-            6) read -p "Please enter the Message: " message
+            6) read -p "  Please enter the Message: " message
                ;;
             x) #calling database_entry function
                database_entry
                add_exit_flag=1
                ;;
-            *) echo "$(tput setaf 1)Please coose the correct option!$(tput sgr 0)"
+            *) echo "  $(tput setaf 1)Please coose the correct option!$(tput sgr 0)"
 	       sleep $short_delay
           esac
      done
@@ -497,23 +522,44 @@ function add_entry()
 
 #========================================= main script ===============================================
 
-exit_flag=0							#initializing the exit_flag to continue the while loop
+exit_flag=0
+log "Script invoked"							#initializing the exit_flag to continue the while loop
 while [ $exit_flag -eq 0 ]
 do
     #calling variable_clear function
     variable_clear
     #calling menu_header function
     menu_header
-    read -p "Please choose your option: " choice		#taking user choice
+
+    #logic for time-out
+    for j in `seq "$menu_time_out" -1 1`
+    do
+        echo -n -e "\r  Please choose your option: \c"
+	read -t 1 choice					#taking user choice as single character 
+	 #if no character is passed as input than save default value '+' in 'choice' variable
+	 if [ -n "$choice" ]				
+	 then
+	     break						#come out of if condition block if user entered any input
+         else
+	      choice=+
+	 fi
+    done
+        
     case $choice in	
             1) add_entry 					#calling add_entry function if user choose option 1
 	       ;;
     	    2) search_and_edit					#calling search_and_edit function if user choose option 2
 	       ;;
     	    x) exit_flag=1					#setting exit_flag to come out of the while loop if user choose option 3
+    	       log "Script exited"
+    	       ;;
+    	    +) #If user has not entered any value in set time out period then this option will execute
+    	       echo -e "$(tput setaf $red)\n\n  Time out occured as you have not chosen any option$(tput sgr 0)\n"
+    	       exit_flag=1					#setting exit_flag to come out of the while loop if user has not given any input
+    	       log "Script timed out!!"
     	       ;;
 	    *)  #defualt condition if the user entered some other value
-	       echo "$(tput setaf 1)Please coose the correct option!$(tput sgr 0)"
+	       echo -e "\n  $(tput setaf 1)Please choose the correct option!$(tput sgr 0)"
 	       sleep $short_delay						#delay
     	       ;;
      esac
