@@ -68,6 +68,4 @@ This Linux Shell Scripting Project is Divided into various functional areas.
 * __Time-out:__
   * The script will time out if the user input is absent for more than 10 seconds.
 
-## Sample Output
------------------
-Here are the sample output by the end of Linux Shell Scripting Project execution.
+
