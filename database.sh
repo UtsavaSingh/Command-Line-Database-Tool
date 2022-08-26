@@ -291,6 +291,10 @@ function edit_operation()
                sed -i "$data_position"s/.*/"$date_time,$name,$email,$tel_no,$mob_no,$place,$message"/ "$database_file"
 	       #calling log function
                log "Updated $name data in the database.csv file"
+	       #calling variable_clear function
+    	       variable_clear
+               #calling search_and_edit function
+               search_and_edit
                ;;
             x) #to exit the search screen
 	       edit_exit_flag=1
