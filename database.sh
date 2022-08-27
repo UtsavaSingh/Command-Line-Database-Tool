@@ -54,7 +54,7 @@ function variable_clear()
 
     name=
     email=
-    tel_no=
+    tel_no=							#clear all global variables
     mob_no=
     place=
     message=
